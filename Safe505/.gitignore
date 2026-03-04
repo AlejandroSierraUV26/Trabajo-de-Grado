@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+
+# Variables de Entorno (¡CRÍTICO!)
+.env
+.flaskenv
+
+# Base de Datos
+instance/
+*.db
+*.sqlite3
+
+# IDEs
+.vscode/
+.idea/
+
+# Logs
+logs/
+*.log
