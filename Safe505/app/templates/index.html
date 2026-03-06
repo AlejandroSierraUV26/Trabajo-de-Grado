@@ -1,0 +1,198 @@
+{% extends "layout.html" %}
+{% block content %}
+
+{% if not aws_configurado %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="alert alert-warning shadow-sm border-0 border-start border-warning border-4 d-flex align-items-center p-4 alerta-permanente" role="alert">
+            <i class="bi bi-exclamation-triangle-fill text-warning" style="font-size: 2.5rem; margin-right: 1.5rem;"></i>
+            <div>
+                <h4 class="alert-heading fw-bold text-dark mb-1">¡Acción Requerida! Conexión a AWS no detectada</h4>
+                <p class="mb-0 text-dark">
+                    Para visualizar los datos reales de tu infraestructura, costos y ejecutar escaneos, es necesario configurar tus credenciales de acceso (Access Key y Secret Key).
+                </p>
+            </div>
+            <div class="ms-auto ps-3">
+                <a href="{{ url_for('configuracion_aws') }}" class="btn btn-dark fw-bold px-4 py-2 shadow-sm">
+                    <i class="bi bi-gear-fill me-2"></i>Ir a Configuración
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="row mb-4 align-items-center">
+    <div class="col-md-8">
+        <h2 class="mb-1 fw-bold text-dark">Evaluación de Efectividad</h2>
+        <p class="text-muted mb-0">Estado actual de la infraestructura frente a CIS AWS Foundations Benchmark.</p>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="{{ url_for('ejecutar_escaneo') }}" class="btn btn-warning text-dark fw-bold shadow-sm border-0 px-4 py-2">
+                <i class="bi bi-play-circle me-1"></i> Ejecutar Escaneo
+            </a>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3 mb-3 mb-md-0">
+        <div class="card text-center p-4 shadow-sm border-0 h-100">
+            <div class="text-muted fw-bold text-uppercase" style="font-size: 0.85rem;">Vulnerabilidades Iniciales</div>
+            <div class="metric-value text-danger mt-2">
+                {{ inicial.total_findings if inicial else 0 }}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3 mb-md-0">
+        <div class="card text-center p-4 shadow-sm border-0 h-100">
+            <div class="text-muted fw-bold text-uppercase" style="font-size: 0.85rem;">Vulnerabilidades Actuales</div>
+            <div class="metric-value text-warning mt-2">
+                {{ scan.total_findings if scan else 0 }}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3 mb-md-0">
+        <div class="card text-center p-4 shadow-sm border-0 h-100" style="border-left: 4px solid #198754 !important;">
+            <div class="text-muted fw-bold text-uppercase" style="font-size: 0.85rem;">Efectividad Mitigación</div>
+            <div class="metric-value text-success mt-2">
+                {{ scan.reduction_percentage | round(1) if scan else 0 }}%
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3 mb-md-0">
+        <div class="card text-center p-4 shadow-sm border-0 h-100" style="border-left: 4px solid #0dcaf0 !important;">
+            <div class="text-muted fw-bold text-uppercase" style="font-size: 0.85rem;">Costo Estimado (Mes)</div>
+            <div class="metric-value text-info mt-2">
+                ${{ costo if costo else '0.00' }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-8 mb-4 mb-md-0">
+        <div class="card p-4 h-100 shadow-sm border-0">
+            <h5 class="card-title mb-4 fw-bold text-dark">Historial de Vulnerabilidades</h5>
+            <div class="chart-container" style="position: relative; height: 300px; width: 100%;">
+                <canvas id="historyChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card p-4 h-100 shadow-sm border-0">
+            <h5 class="card-title mb-4 fw-bold text-dark">Distribución de Riesgo</h5>
+            <div class="chart-container" style="position: relative; height: 300px; width: 100%;">
+                <canvas id="severityChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card p-4 shadow-sm border-0">
+            <h5 class="card-title mb-4 fw-bold text-dark">Vulnerabilidades por Servicio de AWS</h5>
+            <div class="chart-container" style="position: relative; height: 300px; width: 100%;">
+                <canvas id="serviceChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="chartData" style="display: none;"
+     data-labels='{{ labels|default([])|tojson|safe }}'
+     data-valores-failed='{{ valores_failed|default([])|tojson|safe }}'
+     data-valores-passed='{{ valores_passed|default([])|tojson|safe }}'
+     data-critical='{{ scan.critical_count if scan else 0 }}'
+     data-high='{{ scan.high_count if scan else 0 }}'
+     data-medium='{{ scan.medium_count if scan else 0 }}'
+     data-low='{{ scan.low_count if scan else 0 }}'
+     data-servicios-labels='{{ servicios_labels|default(["IAM", "S3", "EC2", "RDS", "VPC"])|tojson|safe }}'
+     data-servicios-valores='{{ servicios_valores|default([0, 0, 0, 0, 0])|tojson|safe }}'
+     data-info='{{ info_controles|default({})|tojson|safe }}'>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card p-4 shadow-sm border-0">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="card-title mb-0 fw-bold text-dark">Detalle de Controles Evaluados</h5>
+                <span class="badge bg-light text-dark border"><i class="bi bi-info-circle me-1"></i>Clic para ver remediación</span>
+            </div>
+            <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                <table class="table table-hover align-middle table-borderless">
+                    <thead class="table-light border-bottom sticky-top">
+                        <tr>
+                            <th class="py-3">Control CIS</th>
+                            <th class="py-3">Estado</th>
+                            <th class="py-3">Severidad</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if scan and scan.findings %}
+                            {% for finding in scan.findings %}
+                            <tr style="cursor: pointer;" onclick="mostrarDetalle('{{ finding.control_id }}', '{{ finding.title }}')" class="border-bottom">
+                                <td class="py-3">
+                                    <code class="text-dark fw-bold bg-light px-2 py-1 rounded border">{{ finding.control_id }}</code> 
+                                    <span class="text-secondary ms-2">{{ finding.title }}</span>
+                                </td>
+                                <td>
+                                    {% if finding.status == 'PASSED' %}
+                                        <span class="badge bg-success bg-opacity-10 text-success border border-success rounded-pill px-3 py-2"><i class="bi bi-check-circle-fill me-1"></i>PASSED</span>
+                                    {% else %}
+                                        <span class="badge bg-danger bg-opacity-10 text-danger border border-danger rounded-pill px-3 py-2"><i class="bi bi-x-circle-fill me-1"></i>FAILED</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if finding.severity == 'CRITICAL' %}
+                                        <span class="text-danger fw-bold"><i class="bi bi-exclamation-octagon-fill me-1"></i>Crítico</span>
+                                    {% elif finding.severity == 'HIGH' %}
+                                        <span class="text-warning fw-bold" style="color: #fd7e14 !important;"><i class="bi bi-exclamation-triangle-fill me-1"></i>Alto</span>
+                                    {% elif finding.severity == 'MEDIUM' %}
+                                        <span class="text-primary fw-bold"><i class="bi bi-info-circle-fill me-1"></i>Medio</span>
+                                    {% else %}
+                                        <span class="text-info fw-bold"><i class="bi bi-dash-circle-fill me-1"></i>Bajo</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="3" class="text-center py-5 text-muted">
+                                    <i class="bi bi-inbox fs-1 d-block mb-3"></i>
+                                    No hay datos registrados. Ejecute un escaneo para comenzar.
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalDetalle" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg">
+      <div class="modal-header bg-dark text-white border-0 py-3">
+        <h5 class="modal-title fw-bold" id="modalTitulo">Detalle del Control</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-4">
+        <div class="mb-4">
+            <h6 class="text-uppercase text-muted fw-bold mb-2" style="font-size: 0.85rem;">Descripción del Riesgo</h6>
+            <p id="modalDescripcion" class="fs-6 text-dark"></p>
+        </div>
+        <div class="p-3 bg-light rounded-3 border-start border-4 border-success">
+            <h6 class="text-uppercase text-success fw-bold mb-2" style="font-size: 0.85rem;"><i class="bi bi-tools me-1"></i> Pasos de Remediación</h6>
+            <p id="modalRemediacion" class="mb-0 fs-6 text-secondary"></p>
+        </div>
+      </div>
+      <div class="modal-footer border-0 bg-light">
+        <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

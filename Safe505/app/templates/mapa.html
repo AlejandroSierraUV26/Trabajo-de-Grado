@@ -1,0 +1,34 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="row mb-4 align-items-center">
+    <div class="col-md-8">
+        <h2 class="mb-1 fw-bold text-dark">Topología de la Infraestructura</h2>
+        <p class="text-muted mb-0">Mapa visual generado automáticamente con la simbología oficial de AWS.</p>
+    </div>
+    <div class="col-md-4 text-end">
+        <button class="btn btn-outline-primary px-4 shadow-sm" disabled>
+            <i class="bi bi-arrow-clockwise me-1"></i> Actualizar Mapa
+        </button>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card p-5 text-center border-0 shadow-sm" style="background-color: #f8f9fa; min-height: 400px;">
+            <div class="py-4">
+                <i class="bi bi-diagram-3 text-primary mb-3 d-block" style="font-size: 4rem;"></i>
+                <h3 class="fw-bold text-dark">Generador de Diagramas en Desarrollo</h3>
+                <p class="text-muted fs-5 mx-auto mb-4" style="max-width: 650px;">
+                    Esta sección utilizará Boto3 para escanear tu VPC, subredes, instancias EC2, y buckets S3. Luego, empleará la librería de Python <code>diagrams</code> para renderizar una imagen arquitectónica actualizada de tu entorno de AWS.
+                </p>
+                
+                <div class="border border-2 border-dashed border-secondary rounded p-4 bg-white mx-auto" style="max-width: 800px;">
+                    <span class="text-muted"><i class="bi bi-image me-2"></i>El archivo mapa_aws.png aparecerá aquí.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

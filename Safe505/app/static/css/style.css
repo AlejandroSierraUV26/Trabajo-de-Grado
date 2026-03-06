@@ -1,0 +1,106 @@
+/* ==========================================
+   Variables base y tipografía
+   ========================================== */
+body { 
+    font-family: 'Inter', sans-serif; 
+    background-color: #f2f3f3; /* Fondo gris muy claro, estilo consola AWS */
+    overflow-x: hidden;
+}
+
+/* ==========================================
+   Navegación y Menú Lateral
+   ========================================== */
+.navbar-aws { 
+    background-color: #232f3e; /* Azul oscuro AWS */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    z-index: 1040;
+}
+.navbar-brand {
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.sidebar {
+    position: fixed;
+    top: 56px; 
+    bottom: 0;
+    left: 0;
+    z-index: 100;
+    padding: 20px 0;
+    background-color: #ffffff;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+    overflow-y: auto;
+}
+.sidebar .nav-link {
+    color: #545b64;
+    font-weight: 500;
+    padding: 12px 20px;
+    margin: 4px 15px;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+.sidebar .nav-link:hover {
+    background-color: #f8f9fa;
+    color: #16191f;
+}
+.sidebar .nav-link.active {
+    background-color: #fff4e5; /* Fondo naranja muy suave */
+    color: #d16b00; /* Naranja AWS */
+    font-weight: 600;
+}
+.sidebar-heading {
+    font-size: 0.75rem; 
+    font-weight: 600;
+}
+
+/* ==========================================
+   Área Principal y Tarjetas
+   ========================================== */
+main {
+    padding-top: 85px; 
+    padding-bottom: 40px;
+}
+.card { 
+    border: 1px solid #eaeded; 
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05); 
+    border-radius: 8px;
+    background-color: #ffffff;
+}
+.metric-value { 
+    font-size: 2.2rem; 
+    font-weight: 600; 
+}
+
+/* ==========================================
+   Gráficas
+   ========================================== */
+/* Reemplaza los estilos en línea de los canvas */
+.chart-container {
+    position: relative;
+    height: 300px;
+    width: 100%;
+}
+
+/* ==========================================
+   Tablas, Badges y Código
+   ========================================== */
+.table-hover tbody tr:hover {
+    background-color: #f8f9fa;
+    transition: background-color 0.2s ease-in-out;
+}
+/* Estilo para los IDs de los controles (ej. 1.14) */
+code {
+    color: #d13212; /* Un tono rojizo/naranja sutil */
+    font-size: 0.9em;
+}
+
+/* ==========================================
+   Modales
+   ========================================== */
+.modal-content {
+    border-radius: 12px;
+}
+.modal-header {
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+}

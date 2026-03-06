@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AWS Security Monitor - Tesis</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <header class="navbar navbar-dark navbar-aws fixed-top flex-md-nowrap p-2 shadow-sm">
+        <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3 d-flex align-items-center" href="/">
+            <i class="bi bi-shield-check text-warning fs-4 me-2"></i> AWS Security Dashboard
+        </a>
+        
+        <div class="d-none d-md-flex ms-auto px-4 gap-3 align-items-center">
+            <button class="btn btn-outline-light btn-sm px-3 rounded-pill d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#modalProyecto">
+                <i class="bi bi-info-circle me-2"></i> Info del Proyecto
+            </button>
+            <button class="btn btn-warning btn-sm px-3 rounded-pill fw-bold text-dark d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#modalAutor">
+                <i class="bi bi-person-badge-fill me-2"></i> Acerca de mí
+            </button>
+        </div>
+
+        <button class="navbar-toggler position-absolute d-md-none collapsed end-0 me-3" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </header>
+
+    <div class="container-fluid">
+        <div class="row">
+            
+           <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block sidebar collapse">
+                <div class="position-sticky pt-3">
+                    
+                    <div class="px-3 mb-3">
+                        {% if estado_aws == 'conectado' %}
+                            <a href="/configuracion-aws" class="text-decoration-none d-block">
+                                <div class="badge bg-success bg-opacity-10 text-success border border-success p-2 w-100 text-start rounded shadow-sm" style="font-size: 0.85rem;">
+                                    <i class="bi bi-cloud-check-fill me-2"></i> Entorno Conectado
+                                </div>
+                            </a>
+                        {% elif estado_aws == 'error_credenciales' or estado_aws == 'error_red' %}
+                            <a href="/configuracion-aws" class="text-decoration-none d-block">
+                                <div class="badge bg-warning bg-opacity-10 text-warning border border-warning p-2 w-100 text-start rounded shadow-sm" style="font-size: 0.85rem;">
+                                    <i class="bi bi-exclamation-triangle-fill me-2"></i> Error en Credenciales
+                                </div>
+                            </a>
+                        {% else %}
+                            <a href="/configuracion-aws" class="text-decoration-none d-block">
+                                <div class="badge bg-danger bg-opacity-10 text-danger border border-danger p-2 w-100 text-start rounded shadow-sm" style="font-size: 0.85rem;">
+                                    <i class="bi bi-cloud-slash-fill me-2"></i> Sin Conexión
+                                </div>
+                            </a>
+                        {% endif %}
+                    </div>
+
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.path == '/' %}active{% endif %}" href="/">
+                                <i class="bi bi-grid-1x2-fill me-2"></i> Dashboard General
+                            </a>
+                        </li>
+
+                        <li class="nav-item mt-3 mb-1 px-3 text-muted text-uppercase sidebar-heading">
+                            Infraestructura (CIS)
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.path == '/inventario-s3' %}active{% endif %}" href="/inventario-s3">
+                                <i class="bi bi-box-seam me-2"></i> Almacenamiento (S3)
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.path == '/auditoria-ec2' %}active{% endif %}" href="/auditoria-ec2">
+                                <i class="bi bi-server me-2"></i> Cómputo (EC2)
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.path == '/auditoria-rds' %}active{% endif %}" href="/auditoria-rds">
+                                <i class="bi bi-database me-2"></i> Bases de Datos (RDS)
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.path == '/auditoria-vpc' %}active{% endif %}" href="/auditoria-vpc">
+                                <i class="bi bi-hdd-network me-2"></i> Redes (VPC)
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.path == '/auditoria-lambda' %}active{% endif %}" href="/auditoria-lambda">
+                                <i class="bi bi-lightning-charge me-2"></i> Serverless (Lambda)
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.path == '/auditoria-cloudwatch' %}active{% endif %}" href="/auditoria-cloudwatch">
+                                <i class="bi bi-activity me-2"></i> Monitoreo (CloudWatch)
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.path == '/auditoria-route53' %}active{% endif %}" href="/auditoria-route53">
+                                <i class="bi bi-signpost-split me-2"></i> DNS (Route 53)
+                            </a>
+                        </li>
+                        
+                        <li class="nav-item mt-3 mb-1 px-3 text-muted text-uppercase sidebar-heading">
+                            Auditoría y Mapas
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.path == '/roles-permisos' %}active{% endif %}" href="/roles-permisos">
+                                <i class="bi bi-person-badge-fill me-2"></i> Roles y Permisos
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.path == '/mapa-entorno' %}active{% endif %}" href="/mapa-entorno">
+                                <i class="bi bi-diagram-3-fill me-2"></i> Mapa del Entorno
+                            </a>
+                        </li>
+
+                        <li class="nav-item mt-3 mb-1 px-3 text-muted text-uppercase sidebar-heading">
+                            Ajustes
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.path == '/configuracion-aws' %}active{% endif %}" href="/configuracion-aws">
+                                <i class="bi bi-gear-fill me-2"></i> Conexión AWS
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-5">
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-info alert-dismissible fade show shadow-sm mt-3" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                {% block content %}{% endblock %}
+                
+            </main>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalProyecto" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-dark text-white border-0 py-3">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-journal-text me-2"></i>Información del Proyecto</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <h6 class="fw-bold text-dark">Propósito de la Herramienta</h6>
+                    <p class="text-muted text-justify">
+                        Esta aplicación fue desarrollada como proyecto de tesis con el objetivo de evaluar automáticamente la postura de seguridad de Gestión de la Postura de Seguridad en la Nube (CSPM) de un entorno AWS, tomando como base las recomendaciones del estándar <strong>CIS AWS Foundations Benchmark</strong>.
+                    </p>
+                    
+                    <h6 class="fw-bold text-dark mt-4">Manual Básico de Uso</h6>
+                    <ul class="text-muted">
+                        <li class="mb-2"><strong>Dashboard General:</strong> Muestra un resumen ejecutivo de las vulnerabilidades encontradas y la mejora histórica tras la aplicación de medidas correctivas.</li>
+                        <li class="mb-2"><strong>Ejecutar Escaneo:</strong> Utiliza el botón amarillo en el Dashboard para lanzar una nueva evaluación mediante Boto3 (Python) contra tu cuenta de AWS.</li>
+                        <li class="mb-2"><strong>Módulos de Infraestructura:</strong> Navega por S3, EC2, RDS, etc., en el menú lateral para ver el detalle técnico y los recursos específicos que fallan los controles.</li>
+                        <li class="mb-2"><strong>Remediación:</strong> Haz clic en cualquier control marcado como <span class="badge bg-danger bg-opacity-10 text-danger border border-danger rounded-pill px-2 py-1">FAILED</span> para ver las instrucciones de mitigación.</li>
+                    </ul>
+                </div>
+                <div class="modal-footer border-0 bg-light">
+                    <button type="button" class="btn btn-secondary px-4 rounded-pill" data-bs-dismiss="modal">Entendido</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="modalAutor" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow-lg">
+                    <div class="modal-header bg-warning border-0 py-3 shadow-sm">
+                        <h5 class="modal-title fw-bold text-dark"><i class="bi bi-person-badge me-2"></i>Acerca del Autor</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4 text-center">
+                        
+                        <div class="mb-4 d-flex justify-content-center align-items-center gap-4">
+                            <img src="{{ url_for('static', filename='img/portrait_alejandro.png') }}" 
+                                alt="Retrato de Alejandro Sierra Betancourt" 
+                                class="rounded-circle shadow-sm border border-2 border-light" 
+                                style="width: 110px; height: 110px; object-fit: cover;">
+                                
+                            <img src="{{ url_for('static', filename='img/logo_univalle.jpg') }}" 
+                                alt="Logo Universidad del Valle" 
+                                style="height: 90px; object-fit: contain;">
+                        </div>
+
+                        <h4 class="fw-bold text-dark mb-1">Alejandro Sierra Betancourt</h4>
+                        <h5 class="fw-bold mb-1" style="color: #d13212;">Universidad del Valle</h5>
+                        <p class="text-muted mb-4">Ingeniería en Sistemas</p>
+                        
+                        <div class="p-3 bg-light rounded-3 text-start shadow-sm">
+                            <p class="mb-0 fs-6 text-secondary">
+                                Proyecto de grado enfocado en la automatización de auditorías de ciberseguridad en la nube, combinando desarrollo web (Flask, Bootstrap) con automatización de infraestructura (Python, Boto3, AWS).
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="modal-footer border-0 d-flex justify-content-center bg-light">
+                        <a href="#" class="btn btn-outline-dark rounded-circle me-2" title="LinkedIn"><i class="bi bi-linkedin"></i></a>
+                        <a href="#" class="btn btn-outline-dark rounded-circle" title="GitHub"><i class="bi bi-github"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

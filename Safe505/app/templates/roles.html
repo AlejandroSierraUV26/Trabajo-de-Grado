@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="row mb-4 align-items-center">
+    <div class="col-md-8">
+        <h2 class="mb-1 fw-bold text-dark">Roles y Permisos (IAM)</h2>
+        <p class="text-muted mb-0">Auditoría de identidades, políticas asignadas y privilegios excesivos.</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card p-5 text-center border-0 shadow-sm" style="background-color: #f8f9fa;">
+            <div class="py-5">
+                <i class="bi bi-person-lines-fill text-danger" style="font-size: 4rem;"></i>
+                <h3 class="mt-4 fw-bold text-dark">Módulo en Desarrollo</h3>
+                <p class="text-muted fs-5 mx-auto" style="max-width: 650px;">
+                    Próximamente, esta sección analizará los roles de IAM de tu cuenta. Te permitirá visualizar qué políticas tienen adjuntas y destacará automáticamente aquellos roles con <strong>permisos administrativos (AdministratorAccess)</strong> o privilegios que deberías revisar para cumplir con el principio de mínimo privilegio.
+                </p>
+                <a href="/" class="btn btn-outline-secondary mt-3 px-4">
+                    <i class="bi bi-arrow-left me-2"></i>Volver al Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
